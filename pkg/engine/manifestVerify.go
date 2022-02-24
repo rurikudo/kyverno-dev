@@ -74,7 +74,7 @@ type resourceVerifier struct {
 	resp          *response.EngineResponse
 }
 
-func (mv *resourceVerifier) verify(resourceVerify *k8smnfconfig.ParameterObject) {
+func (mv *resourceVerifier) verify(resourceVerify *k8smnfconfig.ManifestIntegrityConstraint) {
 	start := time.Now()
 	kind := mv.policyContext.NewResource.GetKind()
 	ns := mv.policyContext.NewResource.GetNamespace()

@@ -522,15 +522,15 @@ func generateRulePatches(policy kyverno.ClusterPolicy, controllers string, log l
 // https://github.com/kyverno/kyverno/issues/568
 
 type kyvernoRule struct {
-	Name             string                        `json:"name"`
-	MatchResources   *kyverno.MatchResources       `json:"match"`
-	ExcludeResources *kyverno.ExcludeResources     `json:"exclude,omitempty"`
-	Context          *[]kyverno.ContextEntry       `json:"context,omitempty"`
-	AnyAllConditions *apiextensions.JSON           `json:"preconditions,omitempty"`
-	Mutation         *kyverno.Mutation             `json:"mutate,omitempty"`
-	Validation       *kyverno.Validation           `json:"validate,omitempty"`
-	VerifyImages     []*kyverno.ImageVerification  `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
-	VerifyResource   *k8smnfconfig.ParameterObject `json:"verifyResource,omitempty" yaml:"verifyResource,omitempty"`
+	Name             string                                    `json:"name"`
+	MatchResources   *kyverno.MatchResources                   `json:"match"`
+	ExcludeResources *kyverno.ExcludeResources                 `json:"exclude,omitempty"`
+	Context          *[]kyverno.ContextEntry                   `json:"context,omitempty"`
+	AnyAllConditions *apiextensions.JSON                       `json:"preconditions,omitempty"`
+	Mutation         *kyverno.Mutation                         `json:"mutate,omitempty"`
+	Validation       *kyverno.Validation                       `json:"validate,omitempty"`
+	VerifyImages     []*kyverno.ImageVerification              `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
+	VerifyResource   *k8smnfconfig.ManifestIntegrityConstraint `json:"verifyResource,omitempty" yaml:"verifyResource,omitempty"`
 }
 
 func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.Logger) kyvernoRule {
@@ -725,7 +725,7 @@ func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.
 	}
 
 	if rule.VerifyResource != nil {
-		var newVerifyResource *k8smnfconfig.ParameterObject
+		var newVerifyResource *k8smnfconfig.ManifestIntegrityConstraint
 		rule.VerifyResource.DeepCopyInto(newVerifyResource)
 
 		controllerRule.VerifyResource = newVerifyResource

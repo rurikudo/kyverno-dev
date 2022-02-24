@@ -105,7 +105,7 @@ func (r Rule) HasVerifyImages() bool {
 
 // HasVerifyResource checks for verifyResource rule
 func (r Rule) HasVerifyResource() bool {
-	// return !reflect.DeepEqual(r.VerifyResource, k8smnfconfig.ParameterObject{})
+	// return !reflect.DeepEqual(r.VerifyResource, k8smnfconfig.ManifestIntegrityConstraint{})
 	return r.VerifyResource != nil
 }
 

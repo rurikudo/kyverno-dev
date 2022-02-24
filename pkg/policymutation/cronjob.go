@@ -160,7 +160,7 @@ func generateCronJobRule(rule kyverno.Rule, controllers string, log logr.Logger)
 	}
 
 	if jobRule.VerifyResource != nil {
-		var newVerifyResource *k8smnfconfig.ParameterObject
+		var newVerifyResource *k8smnfconfig.ManifestIntegrityConstraint
 		rule.VerifyResource.DeepCopyInto(newVerifyResource)
 
 		cronJobRule.VerifyResource = newVerifyResource

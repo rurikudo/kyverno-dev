@@ -133,7 +133,7 @@ type Rule struct {
 
 	// VerifyResource is used to verify k8s resource signatures and mutate them to add a digest
 	// +optional
-	VerifyResource *k8smnfconfig.ParameterObject `json:"verifyResource,omitempty" yaml:"verifyResource,omitempty"`
+	VerifyResource *k8smnfconfig.ManifestIntegrityConstraint `json:"verifyResource,omitempty" yaml:"verifyResource,omitempty"`
 }
 
 // FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.

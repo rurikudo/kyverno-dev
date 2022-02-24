@@ -9,6 +9,7 @@ import (
 
 	"github.com/distribution/distribution/reference"
 	"github.com/kyverno/kyverno/pkg/engine/context"
+	k8smnfconfig "github.com/stolostron/integrity-shield/shield/pkg/config"
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/jmespath/go-jmespath"
@@ -22,7 +23,6 @@ import (
 	"github.com/kyverno/kyverno/pkg/utils"
 	"github.com/minio/pkg/wildcard"
 	"github.com/pkg/errors"
-	k8smnfconfig "github.com/stolostron/integrity-shield/shield/pkg/config"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -251,7 +251,7 @@ func Validate(policy *kyverno.ClusterPolicy, client *dclient.Client, mock bool, 
 			}
 
 			if rule.HasVerifyResource() {
-				if err := validateVerifyResourceRule(rule.VerifyResource); err != nil {
+				if err := k8smnfconfig.ValidateManifestConstraint(rule.VerifyResource); err != nil {
 					return errors.Wrapf(err, "failed to validate policy %s rule %s", policy.Name, rule.Name)
 				}
 			}
@@ -1510,19 +1510,4 @@ func validateVerifyImagesRule(i *kyverno.ImageVerification) error {
 	}
 
 	return fmt.Errorf("either a public key, or root certificates and an email, are required")
-}
-
-func validateVerifyResourceRule(i *k8smnfconfig.ParameterObject) error {
-	// hasKey := i.Key != ""
-	// hasRoots := i.Roots != ""
-	// hasSubject := i.Subject != ""
-
-	// if (hasKey && !hasRoots && !hasSubject) || (hasRoots && hasSubject) {
-	// 	return nil
-	// }
-
-	// return fmt.Errorf("either a public key, or root certificates and an email, are required")
-
-	// TODO: fix
-	return nil
 }

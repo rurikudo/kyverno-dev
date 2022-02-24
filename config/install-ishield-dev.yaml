@@ -8265,7 +8265,7 @@ spec:
       containers:
       - args:
         - --filterK8sResources=[Event,*,*][*,kube-system,*][*,kube-public,*][*,kube-node-lease,*][Node,*,*][APIService,*,*][TokenReview,*,*][SubjectAccessReview,*,*][*,kyverno,kyverno*][Binding,*,*][ReplicaSet,*,*][ReportChangeRequest,*,*][ClusterReportChangeRequest,*,*][PolicyReport,*,*][ClusterPolicyReport,*,*]
-        - -v=4
+        - -v=2
         env:
         - name: INIT_CONFIG
           value: kyverno
@@ -8345,8 +8345,8 @@ spec:
             drop:
             - all
           privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+          readOnlyRootFilesystem: false
+          runAsNonRoot: false
       securityContext:
         runAsNonRoot: false
       serviceAccountName: kyverno-service-account
