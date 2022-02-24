@@ -14,6 +14,7 @@ import (
 )
 
 func VerifyManifest(policyContext *PolicyContext) (resp *response.EngineResponse) {
+	fmt.Println("VerifyManifest")
 	resp = &response.EngineResponse{}
 
 	policy := policyContext.Policy
@@ -32,7 +33,7 @@ func VerifyManifest(policyContext *PolicyContext) (resp *response.EngineResponse
 
 	for i := range policyContext.Policy.Spec.Rules {
 		rule := &policyContext.Policy.Spec.Rules[i]
-		if rule.VerifyManifest != nil {
+		if rule.VerifyManifest == nil {
 			continue
 		}
 
@@ -86,6 +87,7 @@ func (mv *manifestVerifier) verify(manifestVerify *k8smnfconfig.ParameterObject)
 		operation = "UPDATE"
 	}
 	err, allow, msg := shield.ManifestVerify(mv.policyContext.NewResource, mv.policyContext.OldResource, operation, mv.policyContext.AdmissionInfo.AdmissionUserInfo.Username, manifestVerify)
+	fmt.Println("VerifyManifest verify: ", err, allow, msg)
 	if err != nil {
 		ruleResp.Status = response.RuleStatusFail
 		ruleResp.Message = fmt.Sprintf("manifest verification failed for %s.%s: %v", kind, name, err)

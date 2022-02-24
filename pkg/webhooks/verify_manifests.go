@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/kyverno/kyverno/api/kyverno/v1"
@@ -31,6 +32,8 @@ func (ws *WebhookServer) handleVerifyManifest(request *v1beta1.AdmissionRequest,
 
 	resourceName := getResourceName(request)
 	logger := ws.log.WithValues("action", "verifyManifest", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
+
+	fmt.Println("@@@@ action", "verifyManifest", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
 
 	var engineResponses []*response.EngineResponse
 	var patches [][]byte

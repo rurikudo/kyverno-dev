@@ -8319,8 +8319,8 @@ spec:
             drop:
             - all
           privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+          # readOnlyRootFilesystem: true
+          runAsNonRoot: false
       initContainers:
       - env:
         - name: METRICS_CONFIG
@@ -8345,8 +8345,8 @@ spec:
             drop:
             - all
           privileged: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
+          # readOnlyRootFilesystem: true
+          runAsNonRoot: false
       securityContext:
-        runAsNonRoot: true
+        runAsNonRoot: false
       serviceAccountName: kyverno-service-account
