@@ -78,7 +78,6 @@ func validateJSONPatchPathForForwardSlash(patch string) error {
 
 // Validate checks the policy and rules declarations for required configurations
 func Validate(policy *kyverno.ClusterPolicy, client *dclient.Client, mock bool, openAPIController *openapi.Controller) error {
-	fmt.Println("@@@@ Validate")
 	namespaced := false
 	background := policy.Spec.Background == nil || *policy.Spec.Background
 
@@ -132,7 +131,6 @@ func Validate(policy *kyverno.ClusterPolicy, client *dclient.Client, mock bool, 
 	}
 
 	for i, rule := range policy.Spec.Rules {
-		fmt.Println("@@@@ Validate rule", rule)
 		//check for forward slash
 		if err := validateJSONPatchPathForForwardSlash(rule.Mutation.PatchesJSON6902); err != nil {
 			return fmt.Errorf("path must begin with a forward slash: spec.rules[%d]: %s", i, err)
@@ -253,7 +251,6 @@ func Validate(policy *kyverno.ClusterPolicy, client *dclient.Client, mock bool, 
 			}
 
 			if rule.HasVerifyManifest() {
-				fmt.Println("@@@@ validateVerifyManifestRule")
 				if err := validateVerifyManifestRule(rule.VerifyManifest); err != nil {
 					return errors.Wrapf(err, "failed to validate policy %s rule %s", policy.Name, rule.Name)
 				}

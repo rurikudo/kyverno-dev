@@ -23,7 +23,6 @@ import (
 // - Background
 // - auto-gen annotation and rules
 func GenerateJSONPatchesForDefaults(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byte, []string) {
-	fmt.Println("@@@@@ GenerateJSONPatchesForDefaults")
 	var patches [][]byte
 	var updateMsgs []string
 
@@ -254,7 +253,6 @@ func defaultFailurePolicy(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byt
 
 // GeneratePodControllerRule returns two patches: rulePatches and annotation patch(if necessary)
 func GeneratePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (patches [][]byte, errs []error) {
-	fmt.Println("@@@@@ GeneratePodControllerRule")
 	applyAutoGen, desiredControllers := CanAutoGen(&policy, log)
 
 	if !applyAutoGen {
@@ -263,7 +261,6 @@ func GeneratePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (p
 
 	ann := policy.GetAnnotations()
 	actualControllers, ok := ann[engine.PodControllersAnnotation]
-	fmt.Println("@@@@@ actualControllers", actualControllers)
 	// - scenario A
 	// - predefined controllers are invalid, overwrite the value
 	if !ok || !applyAutoGen {
@@ -302,10 +299,8 @@ func GeneratePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (p
 //          - mutate.Patches/mutate.PatchesJSON6902/validate.deny/generate rule is defined
 // - otherwise it returns all pod controllers
 func CanAutoGen(policy *kyverno.ClusterPolicy, log logr.Logger) (applyAutoGen bool, controllers string) {
-	fmt.Println("@@@@@ CanAutoGen ", policy.Spec.Rules)
 	var needAutogen bool
 	for _, rule := range policy.Spec.Rules {
-		fmt.Println("@@@@@ CanAutoGen rule ", rule)
 		match := rule.MatchResources
 		exclude := rule.ExcludeResources
 
@@ -378,7 +373,6 @@ func CanAutoGen(policy *kyverno.ClusterPolicy, log logr.Logger) (applyAutoGen bo
 	if !needAutogen {
 		return false, ""
 	}
-
 	return true, engine.PodControllers
 }
 
@@ -450,11 +444,8 @@ func generateRulePatches(policy kyverno.ClusterPolicy, controllers string, log l
 	for index, rule := range policy.Spec.Rules {
 		ruleIndex[rule.Name] = index
 	}
-	fmt.Println("@@@@@ 449 ", ruleMap)
-	fmt.Println("@@@@@ 450 ", policy.Spec)
 
 	for _, rule := range policy.Spec.Rules {
-		fmt.Println("@@@@@ 453 ", rule)
 		patchPostion := insertIdx
 		convertToPatches := func(genRule kyvernoRule, patchPostion int) []byte {
 			operation := "add"

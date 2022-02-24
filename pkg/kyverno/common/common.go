@@ -175,7 +175,6 @@ func GetPolicies(paths []string) (policies []*v1.ClusterPolicy, errors []error) 
 
 // MutatePolicy - applies mutation to a policy
 func MutatePolicy(policy *v1.ClusterPolicy, logger logr.Logger) (*v1.ClusterPolicy, error) {
-	fmt.Println("@@@@@ MutatePolicy")
 	patches, _ := policymutation.GenerateJSONPatchesForDefaults(policy, logger)
 	if len(patches) == 0 {
 		return policy, nil
@@ -440,7 +439,6 @@ func GetVariable(variablesString, valuesFile string, fs billy.Filesystem, isGit 
 
 // MutatePolices - function to apply mutation on policies
 func MutatePolices(policies []*v1.ClusterPolicy) ([]*v1.ClusterPolicy, error) {
-	fmt.Println("@@@@ MutatePolices", policies)
 	newPolicies := make([]*v1.ClusterPolicy, 0)
 	logger := log.Log.WithName("apply")
 
