@@ -307,8 +307,9 @@ func (ws *WebhookServer) resourceMutation(request *v1beta1.AdmissionRequest) *v1
 	kind := request.Kind.Kind
 	mutatePolicies := ws.pCache.GetPolicies(policycache.Mutate, kind, request.Namespace)
 	verifyImagesPolicies := ws.pCache.GetPolicies(policycache.VerifyImages, kind, request.Namespace)
+	verifyManifestPolicies := ws.pCache.GetPolicies(policycache.VerifyManifest, kind, request.Namespace)
 
-	if len(mutatePolicies) == 0 && len(verifyImagesPolicies) == 0 {
+	if len(mutatePolicies) == 0 && len(verifyImagesPolicies) == 0 && len(verifyManifestPolicies) == 0 {
 		logger.V(4).Info("no policies matched admission request")
 		return successResponse(nil)
 	}
@@ -331,6 +332,12 @@ func (ws *WebhookServer) resourceMutation(request *v1beta1.AdmissionRequest) *v1
 	imagePatches, err := ws.applyImageVerifyPolicies(newRequest, policyContext, verifyImagesPolicies, logger)
 	if err != nil {
 		logger.Error(err, "image verification failed")
+		return failureResponse(err.Error())
+	}
+
+	err = ws.applyManifestVerifyPolicies(newRequest, policyContext, verifyManifestPolicies, logger)
+	if err != nil {
+		logger.Error(err, "manifest verification failed")
 		return failureResponse(err.Error())
 	}
 

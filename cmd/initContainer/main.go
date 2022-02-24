@@ -54,7 +54,10 @@ const (
 )
 
 func main() {
-	klog.InitFlags(nil)
+	if flag.CommandLine.Lookup("log_dir") == nil {
+		klog.InitFlags(nil)
+	}
+	// klog.InitFlags(nil)
 	log.SetLogger(klogr.New())
 	// arguments
 	flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	k8smnfconfig "github.com/stolostron/integrity-shield/shield/pkg/config"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -129,6 +130,10 @@ type Rule struct {
 	// VerifyImages is used to verify image signatures and mutate them to add a digest
 	// +optional
 	VerifyImages []*ImageVerification `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
+
+	// VerifyImages is used to verify image signatures and mutate them to add a digest
+	// +optional
+	VerifyManifest *k8smnfconfig.ParameterObject `json:"verifyManifest,omitempty" yaml:"verifyManifest,omitempty"`
 }
 
 // FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -73,6 +74,17 @@ func (p *ClusterPolicy) HasVerifyImages() bool {
 	return false
 }
 
+// HasVerifyManifest checks for manifest verification rule types
+func (p *ClusterPolicy) HasVerifyManifest() bool {
+	for _, rule := range p.Spec.Rules {
+		if rule.HasVerifyManifest() {
+			return true
+		}
+	}
+
+	return false
+}
+
 // BackgroundProcessingEnabled checks if background is set to true
 func (p *ClusterPolicy) BackgroundProcessingEnabled() bool {
 	if p.Spec.Background == nil {
@@ -90,6 +102,14 @@ func (r Rule) HasMutate() bool {
 // HasVerifyImages checks for verifyImages rule
 func (r Rule) HasVerifyImages() bool {
 	return r.VerifyImages != nil && !reflect.DeepEqual(r.VerifyImages, ImageVerification{})
+}
+
+// HasVerifyManifest checks for verifyManifest rule
+func (r Rule) HasVerifyManifest() bool {
+	p := r.VerifyManifest
+	fmt.Println(p)
+	// return !reflect.DeepEqual(r.VerifyManifest, k8smnfconfig.ParameterObject{})
+	return r.VerifyManifest != nil
 }
 
 // HasValidate checks for validate rule

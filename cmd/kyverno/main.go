@@ -72,7 +72,10 @@ var (
 )
 
 func main() {
-	klog.InitFlags(nil)
+	if flag.CommandLine.Lookup("log_dir") == nil {
+		klog.InitFlags(nil)
+	}
+	// klog.InitFlags(nil)
 	log.SetLogger(klogr.New())
 	flag.StringVar(&filterK8sResources, "filterK8sResources", "", "Resource in format [kind,namespace,name] where policy is not evaluated by the admission webhook. For example, --filterK8sResources \"[Deployment, kyverno, kyverno],[Events, *, *]\"")
 	flag.StringVar(&excludeGroupRole, "excludeGroupRole", "", "")
