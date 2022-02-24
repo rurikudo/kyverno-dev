@@ -14,6 +14,7 @@ import (
 	"github.com/kyverno/kyverno/pkg/engine"
 	"github.com/kyverno/kyverno/pkg/engine/variables"
 	"github.com/kyverno/kyverno/pkg/utils"
+	k8smnfconfig "github.com/stolostron/integrity-shield/shield/pkg/config"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions"
 )
 
@@ -22,6 +23,7 @@ import (
 // - Background
 // - auto-gen annotation and rules
 func GenerateJSONPatchesForDefaults(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byte, []string) {
+	fmt.Println("@@@@@ GenerateJSONPatchesForDefaults")
 	var patches [][]byte
 	var updateMsgs []string
 
@@ -252,6 +254,7 @@ func defaultFailurePolicy(policy *kyverno.ClusterPolicy, log logr.Logger) ([]byt
 
 // GeneratePodControllerRule returns two patches: rulePatches and annotation patch(if necessary)
 func GeneratePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (patches [][]byte, errs []error) {
+	fmt.Println("@@@@@ GeneratePodControllerRule")
 	applyAutoGen, desiredControllers := CanAutoGen(&policy, log)
 
 	if !applyAutoGen {
@@ -260,7 +263,7 @@ func GeneratePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (p
 
 	ann := policy.GetAnnotations()
 	actualControllers, ok := ann[engine.PodControllersAnnotation]
-
+	fmt.Println("@@@@@ actualControllers", actualControllers)
 	// - scenario A
 	// - predefined controllers are invalid, overwrite the value
 	if !ok || !applyAutoGen {
@@ -299,8 +302,10 @@ func GeneratePodControllerRule(policy kyverno.ClusterPolicy, log logr.Logger) (p
 //          - mutate.Patches/mutate.PatchesJSON6902/validate.deny/generate rule is defined
 // - otherwise it returns all pod controllers
 func CanAutoGen(policy *kyverno.ClusterPolicy, log logr.Logger) (applyAutoGen bool, controllers string) {
+	fmt.Println("@@@@@ CanAutoGen ", policy.Spec.Rules)
 	var needAutogen bool
 	for _, rule := range policy.Spec.Rules {
+		fmt.Println("@@@@@ CanAutoGen rule ", rule)
 		match := rule.MatchResources
 		exclude := rule.ExcludeResources
 
@@ -437,6 +442,7 @@ func updateGenRuleByte(pbyte []byte, kind string, genRule kyvernoRule) (obj []by
 
 // generateRulePatches generates rule for podControllers based on scenario A and C
 func generateRulePatches(policy kyverno.ClusterPolicy, controllers string, log logr.Logger) (rulePatches [][]byte, errs []error) {
+
 	insertIdx := len(policy.Spec.Rules)
 
 	ruleMap := createRuleMap(policy.Spec.Rules)
@@ -444,8 +450,11 @@ func generateRulePatches(policy kyverno.ClusterPolicy, controllers string, log l
 	for index, rule := range policy.Spec.Rules {
 		ruleIndex[rule.Name] = index
 	}
+	fmt.Println("@@@@@ 449 ", ruleMap)
+	fmt.Println("@@@@@ 450 ", policy.Spec)
 
 	for _, rule := range policy.Spec.Rules {
+		fmt.Println("@@@@@ 453 ", rule)
 		patchPostion := insertIdx
 		convertToPatches := func(genRule kyvernoRule, patchPostion int) []byte {
 			operation := "add"
@@ -522,14 +531,15 @@ func generateRulePatches(policy kyverno.ClusterPolicy, controllers string, log l
 // https://github.com/kyverno/kyverno/issues/568
 
 type kyvernoRule struct {
-	Name             string                       `json:"name"`
-	MatchResources   *kyverno.MatchResources      `json:"match"`
-	ExcludeResources *kyverno.ExcludeResources    `json:"exclude,omitempty"`
-	Context          *[]kyverno.ContextEntry      `json:"context,omitempty"`
-	AnyAllConditions *apiextensions.JSON          `json:"preconditions,omitempty"`
-	Mutation         *kyverno.Mutation            `json:"mutate,omitempty"`
-	Validation       *kyverno.Validation          `json:"validate,omitempty"`
-	VerifyImages     []*kyverno.ImageVerification `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
+	Name             string                        `json:"name"`
+	MatchResources   *kyverno.MatchResources       `json:"match"`
+	ExcludeResources *kyverno.ExcludeResources     `json:"exclude,omitempty"`
+	Context          *[]kyverno.ContextEntry       `json:"context,omitempty"`
+	AnyAllConditions *apiextensions.JSON           `json:"preconditions,omitempty"`
+	Mutation         *kyverno.Mutation             `json:"mutate,omitempty"`
+	Validation       *kyverno.Validation           `json:"validate,omitempty"`
+	VerifyImages     []*kyverno.ImageVerification  `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
+	VerifyManifest   *k8smnfconfig.ParameterObject `json:"verifyManifest,omitempty" yaml:"verifyManifest,omitempty"`
 }
 
 func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.Logger) kyvernoRule {
@@ -720,6 +730,14 @@ func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.
 		}
 
 		controllerRule.VerifyImages = newVerifyImages
+		return *controllerRule
+	}
+
+	if rule.VerifyManifest != nil {
+		var newVerifyManifest *k8smnfconfig.ParameterObject
+		rule.VerifyManifest.DeepCopyInto(newVerifyManifest)
+
+		controllerRule.VerifyManifest = newVerifyManifest
 		return *controllerRule
 	}
 

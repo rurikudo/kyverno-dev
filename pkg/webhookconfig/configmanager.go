@@ -332,6 +332,7 @@ func (m *webhookConfigManager) start() {
 
 func (m *webhookConfigManager) processNextWorkItem() bool {
 	key, quit := m.queue.Get()
+	fmt.Println("@@@@@@@ 335 ", key)
 	if quit {
 		return false
 	}
@@ -663,6 +664,7 @@ func (m *webhookConfigManager) compareAndUpdateWebhook(webhookKind, webhookName 
 
 	if changed {
 		logger.V(4).Info("webhook configuration has been changed, updating")
+		fmt.Println("@@@@@@@@@ 666 ", newWebooks)
 		if err := unstructured.SetNestedSlice(resourceWebhook.UnstructuredContent(), newWebooks, "webhooks"); err != nil {
 			return errors.Wrap(err, "unable to set new webhooks")
 		}

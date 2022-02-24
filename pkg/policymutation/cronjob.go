@@ -10,6 +10,7 @@ import (
 	"github.com/kyverno/kyverno/pkg/engine"
 	"github.com/kyverno/kyverno/pkg/engine/variables"
 	"github.com/kyverno/kyverno/pkg/utils"
+	k8smnfconfig "github.com/stolostron/integrity-shield/shield/pkg/config"
 )
 
 func generateCronJobRule(rule kyverno.Rule, controllers string, log logr.Logger) kyvernoRule {
@@ -155,6 +156,14 @@ func generateCronJobRule(rule kyverno.Rule, controllers string, log logr.Logger)
 			newVerifyImages[i] = vi.DeepCopy()
 		}
 		cronJobRule.VerifyImages = newVerifyImages
+		return *cronJobRule
+	}
+
+	if jobRule.VerifyManifest != nil {
+		var newVerifyManifest *k8smnfconfig.ParameterObject
+		rule.VerifyManifest.DeepCopyInto(newVerifyManifest)
+
+		cronJobRule.VerifyManifest = newVerifyManifest
 		return *cronJobRule
 	}
 

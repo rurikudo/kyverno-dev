@@ -30,7 +30,7 @@ func (ws *WebhookServer) handleVerifyManifest(request *v1beta1.AdmissionRequest,
 	}
 
 	resourceName := getResourceName(request)
-	logger := ws.log.WithValues("action", "verifyImages", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
+	logger := ws.log.WithValues("action", "verifyManifest", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
 
 	var engineResponses []*response.EngineResponse
 	var patches [][]byte
