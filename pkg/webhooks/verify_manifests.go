@@ -2,7 +2,6 @@ package webhooks
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/kyverno/kyverno/api/kyverno/v1"
@@ -12,17 +11,17 @@ import (
 	"k8s.io/api/admission/v1beta1"
 )
 
-func (ws *WebhookServer) applyManifestVerifyPolicies(request *v1beta1.AdmissionRequest, policyContext *engine.PolicyContext, policies []*v1.ClusterPolicy, logger logr.Logger) error {
-	ok, message := ws.handleVerifyManifest(request, policyContext, policies)
+func (ws *WebhookServer) applyResourceVerifyPolicies(request *v1beta1.AdmissionRequest, policyContext *engine.PolicyContext, policies []*v1.ClusterPolicy, logger logr.Logger) error {
+	ok, message := ws.handleVerifyResource(request, policyContext, policies)
 	if !ok {
 		return errors.New(message)
 	}
 
-	logger.V(6).Info("manifest verified")
+	logger.V(6).Info("k8s resource verified")
 	return nil
 }
 
-func (ws *WebhookServer) handleVerifyManifest(request *v1beta1.AdmissionRequest,
+func (ws *WebhookServer) handleVerifyResource(request *v1beta1.AdmissionRequest,
 	policyContext *engine.PolicyContext,
 	policies []*v1.ClusterPolicy) (bool, string) {
 
@@ -31,15 +30,13 @@ func (ws *WebhookServer) handleVerifyManifest(request *v1beta1.AdmissionRequest,
 	}
 
 	resourceName := getResourceName(request)
-	logger := ws.log.WithValues("action", "verifyManifest", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
-
-	fmt.Println("@@@@ action", "verifyManifest", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
+	logger := ws.log.WithValues("action", "verifyResource", "resource", resourceName, "operation", request.Operation, "gvk", request.Kind.String())
 
 	var engineResponses []*response.EngineResponse
 	var patches [][]byte
 	for _, p := range policies {
 		policyContext.Policy = *p
-		resp := engine.VerifyManifest(policyContext)
+		resp := engine.VerifyResource(policyContext)
 		engineResponses = append(engineResponses, resp)
 		patches = append(patches, resp.GetPatches()...)
 	}

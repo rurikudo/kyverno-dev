@@ -13,13 +13,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-func VerifyManifest(policyContext *PolicyContext) (resp *response.EngineResponse) {
-	fmt.Println("VerifyManifest")
+func VerifyResource(policyContext *PolicyContext) (resp *response.EngineResponse) {
 	resp = &response.EngineResponse{}
 
 	policy := policyContext.Policy
 	patchedResource := policyContext.NewResource
-	logger := log.Log.WithName("EngineVerifyManifess").WithValues("policy", policy.Name,
+	logger := log.Log.WithName("EngineVerifyResource").WithValues("policy", policy.Name,
 		"kind", patchedResource.GetKind(), "namespace", patchedResource.GetNamespace(), "name", patchedResource.GetName())
 
 	startTime := time.Now()
@@ -33,7 +32,7 @@ func VerifyManifest(policyContext *PolicyContext) (resp *response.EngineResponse
 
 	for i := range policyContext.Policy.Spec.Rules {
 		rule := &policyContext.Policy.Spec.Rules[i]
-		if rule.VerifyManifest == nil {
+		if rule.VerifyResource == nil {
 			continue
 		}
 
@@ -54,28 +53,28 @@ func VerifyManifest(policyContext *PolicyContext) (resp *response.EngineResponse
 			continue
 		}
 
-		mv := &manifestVerifier{
+		mv := &resourceVerifier{
 			logger:        logger,
 			policyContext: policyContext,
 			rule:          ruleCopy,
 			resp:          resp,
 		}
 
-		mv.verify(rule.VerifyManifest)
+		mv.verify(rule.VerifyResource)
 
 	}
 
 	return
 }
 
-type manifestVerifier struct {
+type resourceVerifier struct {
 	logger        logr.Logger
 	policyContext *PolicyContext
 	rule          *v1.Rule
 	resp          *response.EngineResponse
 }
 
-func (mv *manifestVerifier) verify(manifestVerify *k8smnfconfig.ParameterObject) {
+func (mv *resourceVerifier) verify(resourceVerify *k8smnfconfig.ParameterObject) {
 	start := time.Now()
 	kind := mv.policyContext.NewResource.GetKind()
 	ns := mv.policyContext.NewResource.GetNamespace()
@@ -86,19 +85,18 @@ func (mv *manifestVerifier) verify(manifestVerify *k8smnfconfig.ParameterObject)
 	if isUpdateRequest(mv.policyContext) {
 		operation = "UPDATE"
 	}
-	err, allow, msg := shield.ManifestVerify(mv.policyContext.NewResource, mv.policyContext.OldResource, operation, mv.policyContext.AdmissionInfo.AdmissionUserInfo.Username, manifestVerify)
-	fmt.Println("VerifyManifest verify: ", err, allow, msg)
+	err, allow, msg := shield.ManifestVerify(mv.policyContext.NewResource, mv.policyContext.OldResource, operation, mv.policyContext.AdmissionInfo.AdmissionUserInfo.Username, resourceVerify)
 	if err != nil {
 		ruleResp.Status = response.RuleStatusFail
-		ruleResp.Message = fmt.Sprintf("manifest verification failed for %s.%s: %v", kind, name, err)
+		ruleResp.Message = fmt.Sprintf("k8s resource verification failed for %s.%s: %v", kind, name, err)
 	}
 	if allow {
 		ruleResp.Status = response.RuleStatusPass
 	} else {
 		ruleResp.Status = response.RuleStatusFail
 	}
-	ruleResp.Message = fmt.Sprintf("manifest %s.%s verified: %s", kind, name, msg)
-	mv.logger.V(3).Info("verified manifest", "kind", kind, "namespace", ns, "name", name, "duration", time.Since(start).Seconds())
+	ruleResp.Message = fmt.Sprintf("resource %s.%s verified: %s", kind, name, msg)
+	mv.logger.V(3).Info("verified k8s resource", "kind", kind, "namespace", ns, "name", name, "duration", time.Since(start).Seconds())
 	mv.resp.PolicyResponse.Rules = append(mv.resp.PolicyResponse.Rules, *ruleResp)
 	incrementAppliedCount(mv.resp)
 

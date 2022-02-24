@@ -530,7 +530,7 @@ type kyvernoRule struct {
 	Mutation         *kyverno.Mutation             `json:"mutate,omitempty"`
 	Validation       *kyverno.Validation           `json:"validate,omitempty"`
 	VerifyImages     []*kyverno.ImageVerification  `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
-	VerifyManifest   *k8smnfconfig.ParameterObject `json:"verifyManifest,omitempty" yaml:"verifyManifest,omitempty"`
+	VerifyResource   *k8smnfconfig.ParameterObject `json:"verifyResource,omitempty" yaml:"verifyResource,omitempty"`
 }
 
 func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.Logger) kyvernoRule {
@@ -724,11 +724,11 @@ func generateRuleForControllers(rule kyverno.Rule, controllers string, log logr.
 		return *controllerRule
 	}
 
-	if rule.VerifyManifest != nil {
-		var newVerifyManifest *k8smnfconfig.ParameterObject
-		rule.VerifyManifest.DeepCopyInto(newVerifyManifest)
+	if rule.VerifyResource != nil {
+		var newVerifyResource *k8smnfconfig.ParameterObject
+		rule.VerifyResource.DeepCopyInto(newVerifyResource)
 
-		controllerRule.VerifyManifest = newVerifyManifest
+		controllerRule.VerifyResource = newVerifyResource
 		return *controllerRule
 	}
 

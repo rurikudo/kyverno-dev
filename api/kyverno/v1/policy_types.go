@@ -131,9 +131,9 @@ type Rule struct {
 	// +optional
 	VerifyImages []*ImageVerification `json:"verifyImages,omitempty" yaml:"verifyImages,omitempty"`
 
-	// VerifyImages is used to verify image signatures and mutate them to add a digest
+	// VerifyResource is used to verify k8s resource signatures and mutate them to add a digest
 	// +optional
-	VerifyManifest *k8smnfconfig.ParameterObject `json:"verifyManifest,omitempty" yaml:"verifyManifest,omitempty"`
+	VerifyResource *k8smnfconfig.ParameterObject `json:"verifyResource,omitempty" yaml:"verifyResource,omitempty"`
 }
 
 // FailurePolicyType specifies a failure policy that defines how unrecognized errors from the admission endpoint are handled.

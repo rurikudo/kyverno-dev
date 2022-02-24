@@ -10,5 +10,5 @@ const (
 	ValidateAudit
 	Generate
 	VerifyImages
-	VerifyManifest
+	VerifyResource
 )

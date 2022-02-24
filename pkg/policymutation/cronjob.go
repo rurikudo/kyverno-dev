@@ -159,11 +159,11 @@ func generateCronJobRule(rule kyverno.Rule, controllers string, log logr.Logger)
 		return *cronJobRule
 	}
 
-	if jobRule.VerifyManifest != nil {
-		var newVerifyManifest *k8smnfconfig.ParameterObject
-		rule.VerifyManifest.DeepCopyInto(newVerifyManifest)
+	if jobRule.VerifyResource != nil {
+		var newVerifyResource *k8smnfconfig.ParameterObject
+		rule.VerifyResource.DeepCopyInto(newVerifyResource)
 
-		cronJobRule.VerifyManifest = newVerifyManifest
+		cronJobRule.VerifyResource = newVerifyResource
 		return *cronJobRule
 	}
 

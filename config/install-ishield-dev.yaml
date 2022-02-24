@@ -2125,8 +2125,8 @@ spec:
                             type: string
                         type: object
                       type: array
-                    verifyManifest:
-                      description: VerifyImages is used to verify image signatures
+                    verifyResource:
+                      description: VerifyResource is used to verify k8s resource signatures
                         and mutate them to add a digest
                       properties:
                         action:
@@ -6044,8 +6044,8 @@ spec:
                             type: string
                         type: object
                       type: array
-                    verifyManifest:
-                      description: VerifyImages is used to verify image signatures
+                    verifyResource:
+                      description: VerifyResource is used to verify k8s resource signatures
                         and mutate them to add a digest
                       properties:
                         action:
@@ -8319,7 +8319,7 @@ spec:
             drop:
             - all
           privileged: false
-          # readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
           runAsNonRoot: false
       initContainers:
       - env:
@@ -8345,8 +8345,8 @@ spec:
             drop:
             - all
           privileged: false
-          # readOnlyRootFilesystem: true
-          runAsNonRoot: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
       securityContext:
         runAsNonRoot: false
       serviceAccountName: kyverno-service-account

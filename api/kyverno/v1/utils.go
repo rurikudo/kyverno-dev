@@ -2,7 +2,6 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -74,10 +73,10 @@ func (p *ClusterPolicy) HasVerifyImages() bool {
 	return false
 }
 
-// HasVerifyManifest checks for manifest verification rule types
-func (p *ClusterPolicy) HasVerifyManifest() bool {
+// HasVerifyResource checks for k8s resource verification rule types
+func (p *ClusterPolicy) HasVerifyResource() bool {
 	for _, rule := range p.Spec.Rules {
-		if rule.HasVerifyManifest() {
+		if rule.HasVerifyResource() {
 			return true
 		}
 	}
@@ -104,12 +103,10 @@ func (r Rule) HasVerifyImages() bool {
 	return r.VerifyImages != nil && !reflect.DeepEqual(r.VerifyImages, ImageVerification{})
 }
 
-// HasVerifyManifest checks for verifyManifest rule
-func (r Rule) HasVerifyManifest() bool {
-	p := r.VerifyManifest
-	fmt.Println(p)
-	// return !reflect.DeepEqual(r.VerifyManifest, k8smnfconfig.ParameterObject{})
-	return r.VerifyManifest != nil
+// HasVerifyResource checks for verifyResource rule
+func (r Rule) HasVerifyResource() bool {
+	// return !reflect.DeepEqual(r.VerifyResource, k8smnfconfig.ParameterObject{})
+	return r.VerifyResource != nil
 }
 
 // HasValidate checks for validate rule

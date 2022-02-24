@@ -250,8 +250,8 @@ func Validate(policy *kyverno.ClusterPolicy, client *dclient.Client, mock bool, 
 				}
 			}
 
-			if rule.HasVerifyManifest() {
-				if err := validateVerifyManifestRule(rule.VerifyManifest); err != nil {
+			if rule.HasVerifyResource() {
+				if err := validateVerifyResourceRule(rule.VerifyResource); err != nil {
 					return errors.Wrapf(err, "failed to validate policy %s rule %s", policy.Name, rule.Name)
 				}
 			}
@@ -1078,7 +1078,7 @@ func validateUniqueRuleName(p kyverno.ClusterPolicy) (string, error) {
 
 // validateRuleType checks only one type of rule is defined per rule
 func validateRuleType(r kyverno.Rule) error {
-	ruleTypes := []bool{r.HasMutate(), r.HasValidate(), r.HasGenerate(), r.HasVerifyImages(), r.HasVerifyManifest()}
+	ruleTypes := []bool{r.HasMutate(), r.HasValidate(), r.HasGenerate(), r.HasVerifyImages(), r.HasVerifyResource()}
 
 	operationCount := func() int {
 		count := 0
@@ -1512,7 +1512,7 @@ func validateVerifyImagesRule(i *kyverno.ImageVerification) error {
 	return fmt.Errorf("either a public key, or root certificates and an email, are required")
 }
 
-func validateVerifyManifestRule(i *k8smnfconfig.ParameterObject) error {
+func validateVerifyResourceRule(i *k8smnfconfig.ParameterObject) error {
 	// hasKey := i.Key != ""
 	// hasRoots := i.Roots != ""
 	// hasSubject := i.Subject != ""
