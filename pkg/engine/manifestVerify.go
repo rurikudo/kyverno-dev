@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	v1 "github.com/kyverno/kyverno/api/kyverno/v1"
@@ -87,6 +88,9 @@ func (mv *resourceVerifier) verify(resourceVerify *k8smnfconfig.ManifestIntegrit
 		operation = "UPDATE"
 	}
 	namespace := config.KyvernoNamespace
+	// define dry-run namespace
+	os.Setenv("POD_NAMESPACE", namespace)
+	// get integrity shield config
 	shieldConfig, err := k8smnfconfig.LoadRequestHandlerConfig(namespace, "")
 	if err != nil {
 		ruleResp.Status = response.RuleStatusFail
@@ -95,6 +99,7 @@ func (mv *resourceVerifier) verify(resourceVerify *k8smnfconfig.ManifestIntegrit
 		ruleResp.Status = response.RuleStatusFail
 		ruleResp.Message = fmt.Sprintf("k8s resource verification failed for %s.%s: %v", kind, name, "shieldConfig is nil")
 	} else {
+		// manifest verify
 		err, allow, msg := shield.ResourceVerify(mv.policyContext.NewResource, mv.policyContext.OldResource, operation, mv.policyContext.AdmissionInfo.AdmissionUserInfo.Username, shieldConfig.RequestFilterProfile, resourceVerify)
 		if err != nil {
 			ruleResp.Status = response.RuleStatusFail
