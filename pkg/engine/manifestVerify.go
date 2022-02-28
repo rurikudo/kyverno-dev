@@ -7,6 +7,7 @@ import (
 	v1 "github.com/kyverno/kyverno/api/kyverno/v1"
 
 	"github.com/go-logr/logr"
+	"github.com/kyverno/kyverno/pkg/config"
 	"github.com/kyverno/kyverno/pkg/engine/response"
 	k8smnfconfig "github.com/stolostron/integrity-shield/shield/pkg/config"
 	"github.com/stolostron/integrity-shield/shield/pkg/shield"
@@ -85,17 +86,27 @@ func (mv *resourceVerifier) verify(resourceVerify *k8smnfconfig.ManifestIntegrit
 	if isUpdateRequest(mv.policyContext) {
 		operation = "UPDATE"
 	}
-	err, allow, msg := shield.ManifestVerify(mv.policyContext.NewResource, mv.policyContext.OldResource, operation, mv.policyContext.AdmissionInfo.AdmissionUserInfo.Username, resourceVerify)
+	namespace := config.KyvernoNamespace
+	shieldConfig, err := k8smnfconfig.LoadRequestHandlerConfig(namespace, "")
 	if err != nil {
 		ruleResp.Status = response.RuleStatusFail
 		ruleResp.Message = fmt.Sprintf("k8s resource verification failed for %s.%s: %v", kind, name, err)
-	}
-	if allow {
-		ruleResp.Status = response.RuleStatusPass
-	} else {
+	} else if shieldConfig == nil {
 		ruleResp.Status = response.RuleStatusFail
+		ruleResp.Message = fmt.Sprintf("k8s resource verification failed for %s.%s: %v", kind, name, "shieldConfig is nil")
+	} else {
+		err, allow, msg := shield.ResourceVerify(mv.policyContext.NewResource, mv.policyContext.OldResource, operation, mv.policyContext.AdmissionInfo.AdmissionUserInfo.Username, shieldConfig.RequestFilterProfile, resourceVerify)
+		if err != nil {
+			ruleResp.Status = response.RuleStatusFail
+			ruleResp.Message = fmt.Sprintf("k8s resource verification failed for %s.%s: %v", kind, name, err)
+		}
+		if allow {
+			ruleResp.Status = response.RuleStatusPass
+		} else {
+			ruleResp.Status = response.RuleStatusFail
+		}
+		ruleResp.Message = fmt.Sprintf("resource %s.%s verified: %s", kind, name, msg)
 	}
-	ruleResp.Message = fmt.Sprintf("resource %s.%s verified: %s", kind, name, msg)
 	mv.logger.V(3).Info("verified k8s resource", "kind", kind, "namespace", ns, "name", name, "duration", time.Since(start).Seconds())
 	mv.resp.PolicyResponse.Rules = append(mv.resp.PolicyResponse.Rules, *ruleResp)
 	incrementAppliedCount(mv.resp)
